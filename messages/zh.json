@@ -1,0 +1,108 @@
+{
+  "app": {
+    "title": "足迹备忘录",
+    "description": "亲子出游记录应用"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signInWithGoogle": "使用Google登录",
+    "signOut": "退出登录",
+    "welcome": "欢迎",
+    "pleaseSignIn": "请登录"
+  },
+  "nav": {
+    "home": "首页",
+    "memos": "列表",
+    "create": "记录",
+    "analysis": "分析"
+  },
+  "memo": {
+    "create": "新记录",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "title": "标题",
+    "titlePlaceholder": "输入记录标题",
+    "content": "内容",
+    "tags": "标签",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "noMemos": "暂无记录",
+    "search": "搜索",
+    "searchPlaceholder": "输入关键词",
+    "filterByTag": "按标签筛选",
+    "confirmDelete": "是否删除此记录？"
+  },
+  "editor": {
+    "next": "下一步",
+    "previous": "上一步",
+    "review": "确认",
+    "hint": "提示",
+    "useTemplate": "使用模板",
+    "characterCount": "字数",
+    "addTag": "添加标签",
+    "progress": "进度"
+  },
+  "recordType": {
+    "title": "选择记录类型",
+    "building": "建筑/设施",
+    "activity": "活动"
+  },
+  "recordMode": {
+    "title": "选择记录模式",
+    "default": "默认记录",
+    "custom": "自定义记录",
+    "defaultDescription": "使用常用类别",
+    "customDescription": "自选类别"
+  },
+  "categories": {
+    "facilityOverview": "设施概况",
+    "activityOverview": "活动内容概况",
+    "impression": "感想",
+    "toilet": "洗手间",
+    "restArea": "休息区",
+    "dining": "用餐场所",
+    "luggage": "应携带物品",
+    "reflection": "反思",
+    "businessHours": "营业时间",
+    "fee": "费用",
+    "access": "交通",
+    "parking": "停车场",
+    "accessibility": "无障碍设施",
+    "reservation": "预约需求",
+    "crowdedness": "拥挤情况",
+    "nearbyFacilities": "周边设施",
+    "notes": "注意事项",
+    "other": "其他",
+    "preparation": "准备物品",
+    "weather": "天气",
+    "participants": "参与者",
+    "cost": "费用",
+    "duration": "所需时间",
+    "difficulty": "难度",
+    "childReaction": "孩子的反应",
+    "safety": "安全措施",
+    "recommendation": "推荐要点"
+  },
+  "analysis": {
+    "title": "分析",
+    "overview": "概览",
+    "totalMemos": "总记录数",
+    "reflectionMemos": "反思记录数",
+    "currentMonthMemos": "本月记录",
+    "topTags": "常用标签 TOP 5",
+    "monthlyChart": "月度记录数",
+    "noData": "暂无数据"
+  },
+  "common": {
+    "ok": "确定",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "close": "关闭",
+    "loading": "加载中...",
+    "error": "发生错误"
+  }
+}

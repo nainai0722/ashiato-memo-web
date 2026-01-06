@@ -1,0 +1,108 @@
+{
+  "app": {
+    "title": "Ashiato Memo",
+    "description": "Outing records app for parents and children"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signInWithGoogle": "Sign in with Google",
+    "signOut": "Sign Out",
+    "welcome": "Welcome",
+    "pleaseSignIn": "Please sign in"
+  },
+  "nav": {
+    "home": "Home",
+    "memos": "List",
+    "create": "Create",
+    "analysis": "Analysis"
+  },
+  "memo": {
+    "create": "New Record",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "title": "Title",
+    "titlePlaceholder": "Enter record title",
+    "content": "Content",
+    "tags": "Tags",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "noMemos": "No records yet",
+    "search": "Search",
+    "searchPlaceholder": "Enter keyword",
+    "filterByTag": "Filter by tag",
+    "confirmDelete": "Delete this record?"
+  },
+  "editor": {
+    "next": "Next",
+    "previous": "Previous",
+    "review": "Review",
+    "hint": "Hint",
+    "useTemplate": "Use Template",
+    "characterCount": "Characters",
+    "addTag": "Add Tag",
+    "progress": "Progress"
+  },
+  "recordType": {
+    "title": "Select Record Type",
+    "building": "Building/Facility",
+    "activity": "Activity"
+  },
+  "recordMode": {
+    "title": "Select Record Mode",
+    "default": "Default Record",
+    "custom": "Custom Record",
+    "defaultDescription": "Use common categories",
+    "customDescription": "Choose your own categories"
+  },
+  "categories": {
+    "facilityOverview": "Facility Overview",
+    "activityOverview": "Activity Overview",
+    "impression": "Impression",
+    "toilet": "Restroom",
+    "restArea": "Rest Area",
+    "dining": "Dining Options",
+    "luggage": "What to Bring",
+    "reflection": "Reflection",
+    "businessHours": "Business Hours",
+    "fee": "Fee",
+    "access": "Access",
+    "parking": "Parking",
+    "accessibility": "Accessibility",
+    "reservation": "Reservation Required",
+    "crowdedness": "Crowdedness",
+    "nearbyFacilities": "Nearby Facilities",
+    "notes": "Notes",
+    "other": "Other",
+    "preparation": "Preparation",
+    "weather": "Weather",
+    "participants": "Participants",
+    "cost": "Cost",
+    "duration": "Duration",
+    "difficulty": "Difficulty",
+    "childReaction": "Child's Reaction",
+    "safety": "Safety Measures",
+    "recommendation": "Recommendations"
+  },
+  "analysis": {
+    "title": "Analysis",
+    "overview": "Overview",
+    "totalMemos": "Total Records",
+    "reflectionMemos": "Reflection Records",
+    "currentMonthMemos": "This Month",
+    "topTags": "Top 5 Tags",
+    "monthlyChart": "Monthly Records",
+    "noData": "No data available"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  }
+}
