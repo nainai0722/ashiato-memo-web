@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { getMemo, deleteMemo } from '@/lib/firestore';
 import { AshiatoMemo } from '@/types';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function MemoDetailPage() {
   const { user } = useAuth();
@@ -144,25 +145,27 @@ export default function MemoDetailPage() {
         {/* Blocks */}
         <div className="space-y-6">
           {memo.blocks
-            .filter((block) => block.text?.trim())
+            .filter((block) => block.text?.trim() || block.imageUrl)
             .map((block, index) => (
               <div key={block.id} className="bg-white rounded-2xl shadow-sm p-6 relative group">
-                {/* Copy Button */}
-                <button
-                  onClick={() => handleCopyBlock(block.id, block.text || '')}
-                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="コピー"
-                >
-                  {copiedBlockId === block.id ? (
-                    <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  )}
-                </button>
+                {/* Copy Button (only for text blocks) */}
+                {block.text && (
+                  <button
+                    onClick={() => handleCopyBlock(block.id, block.text || '')}
+                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="コピー"
+                  >
+                    {copiedBlockId === block.id ? (
+                      <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                )}
 
                 {/* Category Name */}
                 <div className="flex items-start justify-between mb-3 pr-10">
@@ -183,10 +186,31 @@ export default function MemoDetailPage() {
                   )}
                 </div>
 
-                {/* Content */}
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {block.text}
-                </div>
+                {/* Image Block */}
+                {block.type === 'image' && block.imageUrl && (
+                  <div className="mb-4">
+                    <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                      <Image
+                        src={block.imageUrl}
+                        alt={block.caption || block.categoryName}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    {block.caption && (
+                      <p className="mt-2 text-sm text-gray-600 italic">
+                        {block.caption}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Text Content */}
+                {block.text && (
+                  <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {block.text}
+                  </div>
+                )}
               </div>
             ))}
         </div>

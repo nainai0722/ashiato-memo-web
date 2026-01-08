@@ -6,8 +6,9 @@ import Image from 'next/image';
 
 interface ImageUploadProps {
   userId: string;
-  onImageUploaded: (imageUrl: string) => void;
+  onImageUploaded: (imageUrl: string, caption?: string) => void;
   currentImageUrl?: string;
+  currentCaption?: string;
   memoId?: string;
 }
 
@@ -15,10 +16,12 @@ export default function ImageUpload({
   userId,
   onImageUploaded,
   currentImageUrl,
+  currentCaption,
   memoId,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [caption, setCaption] = useState<string>(currentCaption || '');
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,7 +50,7 @@ export default function ImageUpload({
 
       // Upload to Firebase Storage
       const imageUrl = await uploadImage(userId, file, memoId);
-      onImageUploaded(imageUrl);
+      onImageUploaded(imageUrl, caption);
     } catch (error) {
       console.error('Error uploading image:', error);
       setError('画像のアップロードに失敗しました');
@@ -63,10 +66,18 @@ export default function ImageUpload({
 
   const handleRemove = () => {
     setPreviewUrl(null);
+    setCaption('');
     setError(null);
-    onImageUploaded('');
+    onImageUploaded('', '');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCaptionChange = (newCaption: string) => {
+    setCaption(newCaption);
+    if (previewUrl) {
+      onImageUploaded(previewUrl, newCaption);
     }
   };
 
@@ -81,23 +92,37 @@ export default function ImageUpload({
       />
 
       {previewUrl ? (
-        <div className="relative">
-          <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-            <Image
-              src={previewUrl}
-              alt="Preview"
-              fill
-              className="object-contain"
+        <div className="space-y-3">
+          <div className="relative">
+            <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+              <Image
+                src={previewUrl}
+                alt={caption || "Preview"}
+                fill
+                className="object-contain"
+              />
+            </div>
+            <button
+              onClick={handleRemove}
+              className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              キャプション（オプション）
+            </label>
+            <input
+              type="text"
+              value={caption}
+              onChange={(e) => handleCaptionChange(e.target.value)}
+              placeholder="画像の説明を入力..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <button
-            onClick={handleRemove}
-            className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
       ) : (
         <button

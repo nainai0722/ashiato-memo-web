@@ -137,13 +137,19 @@ export default function MemosPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">{t('app.title')}</h1>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{user.displayName || user.email}</span>
-              <button
-                onClick={signOut}
-                className="text-sm text-red-600 hover:text-red-700"
+              <Link
+                href="/analysis"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
-                {t('auth.signOut')}
-              </button>
+                📊 {t('nav.analysis')}
+              </Link>
+              <Link
+                href="/settings"
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                ⚙️ {t('settings.title')}
+              </Link>
+              <span className="text-sm text-gray-600 hidden sm:inline">{user.displayName || user.email}</span>
             </div>
           </div>
         </div>

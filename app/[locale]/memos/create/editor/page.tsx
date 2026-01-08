@@ -12,6 +12,7 @@ import {
   DEFAULT_BUILDING_CATEGORIES,
   DEFAULT_ACTIVITY_CATEGORIES,
   CategoryData,
+  CATEGORY_HINTS,
 } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
@@ -216,6 +217,26 @@ function EditorContent() {
                     className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 border border-gray-300"
                   >
                     {t('editor.useTemplate')}: {template.split('\n')[0].slice(0, 20)}...
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Hint Templates */}
+          {CATEGORY_HINTS[currentBlock.categoryName] && (
+            <div className="mb-6">
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                {t('editor.detailedTemplates')}
+              </p>
+              <div className="grid md:grid-cols-2 gap-2">
+                {CATEGORY_HINTS[currentBlock.categoryName].map((hintTemplate, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleUseTemplate(hintTemplate.template)}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 rounded-lg text-sm text-gray-800 border border-purple-200 text-left transition-all"
+                  >
+                    <span className="font-medium text-purple-700">📝 {hintTemplate.name}</span>
                   </button>
                 ))}
               </div>
