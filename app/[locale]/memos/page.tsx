@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { getUserMemos, getPublicMemos, deleteMemo, searchMemos, filterMemosByTag } from '@/lib/firestore';
+import { getUserMemos, getPublicMemos, deleteMemo } from '@/lib/firestore';
 import { AshiatoMemo, COMMON_TAGS } from '@/types';
 import Link from 'next/link';
 
@@ -20,7 +20,7 @@ export default function MemosPage() {
   const [memos, setMemos] = useState<AshiatoMemo[]>([]);
   const [filteredMemos, setFilteredMemos] = useState<AshiatoMemo[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string>('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,15 +37,11 @@ export default function MemosPage() {
 
   useEffect(() => {
     // タブ切り替え時にメモをフィルタリング
-    if (activeTab === 'my') {
-      setMemos(myMemos);
-      setFilteredMemos(myMemos);
-    } else {
-      setMemos(publicMemos);
-      setFilteredMemos(publicMemos);
-    }
+    const currentMemos = activeTab === 'my' ? myMemos : publicMemos;
+    setMemos(currentMemos);
+    setFilteredMemos(currentMemos);
     setSearchKeyword('');
-    setSelectedTag('');
+    setSelectedTags([]);
   }, [activeTab, myMemos, publicMemos]);
 
   const loadAllMemos = async () => {
@@ -74,43 +70,53 @@ export default function MemosPage() {
     await loadAllMemos();
   };
 
-  const handleSearch = async (keyword: string) => {
-    if (!user) return;
+  // フィルタリングをクライアントサイドで実行
+  const applyFilters = (baseMemos: AshiatoMemo[], keyword: string, tags: string[]) => {
+    let result = baseMemos;
 
-    setSearchKeyword(keyword);
-    setSelectedTag('');
-
-    if (!keyword) {
-      setFilteredMemos(memos);
-      return;
+    // キーワード検索
+    if (keyword) {
+      const lowerKeyword = keyword.toLowerCase();
+      result = result.filter((memo) => {
+        const titleMatch = memo.title.toLowerCase().includes(lowerKeyword);
+        const blocksMatch = memo.blocks.some(
+          (block) =>
+            block.text?.toLowerCase().includes(lowerKeyword) ||
+            block.tags.some((tag) => tag.toLowerCase().includes(lowerKeyword))
+        );
+        return titleMatch || blocksMatch;
+      });
     }
 
-    try {
-      const results = await searchMemos(user.uid, keyword);
-      setFilteredMemos(results);
-    } catch (error) {
-      console.error('Error searching memos:', error);
+    // タグフィルタリング（複数タグはAND条件）
+    if (tags.length > 0) {
+      result = result.filter((memo) => {
+        const memoTags = memo.blocks.flatMap((block) => block.tags);
+        return tags.every((tag) => memoTags.includes(tag));
+      });
     }
+
+    return result;
   };
 
-  const handleTagFilter = async (tag: string) => {
-    if (!user) return;
+  const handleSearch = (keyword: string) => {
+    setSearchKeyword(keyword);
+    const filtered = applyFilters(memos, keyword, selectedTags);
+    setFilteredMemos(filtered);
+  };
 
-    if (tag === selectedTag) {
-      setSelectedTag('');
-      setFilteredMemos(memos);
-      return;
+  const handleTagFilter = (tag: string) => {
+    let newTags: string[];
+    if (selectedTags.includes(tag)) {
+      // タグを解除
+      newTags = selectedTags.filter((t) => t !== tag);
+    } else {
+      // タグを追加
+      newTags = [...selectedTags, tag];
     }
-
-    setSelectedTag(tag);
-    setSearchKeyword('');
-
-    try {
-      const results = await filterMemosByTag(user.uid, tag);
-      setFilteredMemos(results);
-    } catch (error) {
-      console.error('Error filtering by tag:', error);
-    }
+    setSelectedTags(newTags);
+    const filtered = applyFilters(memos, searchKeyword, newTags);
+    setFilteredMemos(filtered);
   };
 
   const handleDelete = async (memoId: string) => {
@@ -240,7 +246,7 @@ export default function MemosPage() {
                 key={tag}
                 onClick={() => handleTagFilter(tag)}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  selectedTag === tag
+                  selectedTags.includes(tag)
                     ? 'bg-blue-600 text-white'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                 }`}
