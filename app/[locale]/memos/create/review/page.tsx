@@ -21,6 +21,7 @@ export default function ReviewPage() {
   const router = useRouter();
   const [reviewData, setReviewData] = useState<ReviewData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
 
   useEffect(() => {
     const data = sessionStorage.getItem('reviewData');
@@ -43,7 +44,8 @@ export default function ReviewPage() {
 
     try {
       setIsSaving(true);
-      await createMemo(user.uid, reviewData.title, reviewData.blocks);
+      const userName = isPublic ? (user.displayName || user.email?.split('@')[0] || 'Anonymous') : undefined;
+      await createMemo(user.uid, reviewData.title, reviewData.blocks, isPublic, userName);
       sessionStorage.removeItem('reviewData');
       alert('記録を保存しました！');
       router.push('/memos');
@@ -131,6 +133,35 @@ export default function ReviewPage() {
             </p>
           </div>
         )}
+
+        {/* Public Setting */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">{t('memo.isPublic')}</h3>
+              <p className="text-sm text-gray-500">{t('memo.isPublicDescription')}</p>
+            </div>
+            <button
+              onClick={() => setIsPublic(!isPublic)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                isPublic ? 'bg-green-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  isPublic ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          {isPublic && (
+            <div className="mt-3 p-3 bg-green-50 rounded-lg">
+              <p className="text-sm text-green-700">
+                🌐 この記録は「みんなの記録」タブで公開されます。投稿者名: {user?.displayName || user?.email?.split('@')[0] || 'Anonymous'}
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Action Buttons */}
         <div className="flex gap-4">

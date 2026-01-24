@@ -32,7 +32,13 @@
     "search": "搜索",
     "searchPlaceholder": "输入关键词",
     "filterByTag": "按标签筛选",
-    "confirmDelete": "是否删除此记录？"
+    "confirmDelete": "是否删除此记录？",
+    "myMemos": "我的记录",
+    "publicMemos": "公开记录",
+    "public": "公开",
+    "by": "发布者:",
+    "isPublic": "公开",
+    "isPublicDescription": "公开后其他用户也可以查看"
   },
   "editor": {
     "next": "下一步",

@@ -32,7 +32,13 @@
     "search": "検索",
     "searchPlaceholder": "キーワードを入力",
     "filterByTag": "タグで絞り込み",
-    "confirmDelete": "この記録を削除しますか？"
+    "confirmDelete": "この記録を削除しますか？",
+    "myMemos": "自分の記録",
+    "publicMemos": "みんなの記録",
+    "public": "公開",
+    "by": "投稿者:",
+    "isPublic": "公開する",
+    "isPublicDescription": "公開すると他のユーザーも閲覧できます"
   },
   "editor": {
     "next": "次へ",

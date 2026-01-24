@@ -32,7 +32,13 @@
     "search": "Search",
     "searchPlaceholder": "Enter keyword",
     "filterByTag": "Filter by tag",
-    "confirmDelete": "Delete this record?"
+    "confirmDelete": "Delete this record?",
+    "myMemos": "My Records",
+    "publicMemos": "Public Records",
+    "public": "Public",
+    "by": "by",
+    "isPublic": "Make Public",
+    "isPublicDescription": "Other users can view public records"
   },
   "editor": {
     "next": "Next",

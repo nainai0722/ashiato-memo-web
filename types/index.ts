@@ -20,8 +20,10 @@ export interface MemoBlock {
 export interface AshiatoMemo {
   id: string;
   userId: string;
+  userName?: string;  // 公開メモで表示する投稿者名
   title: string;
   blocks: MemoBlock[];
+  isPublic?: boolean;  // 公開設定（true: 公開, false/undefined: 非公開）
   createdAt: Date;
   updatedAt?: Date;
 }

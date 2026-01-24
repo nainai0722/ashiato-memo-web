@@ -20,6 +20,7 @@ export default function EditMemoPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -41,6 +42,7 @@ export default function EditMemoPage() {
       }
       setTitle(memo.title);
       setBlocks(memo.blocks);
+      setIsPublic(memo.isPublic || false);
     } catch (error) {
       console.error('Error loading memo:', error);
       alert(t('common.error'));
@@ -94,7 +96,8 @@ export default function EditMemoPage() {
 
     try {
       setIsSaving(true);
-      await updateMemo(memoId, { title, blocks });
+      const userName = isPublic ? (user?.displayName || user?.email?.split('@')[0] || 'Anonymous') : undefined;
+      await updateMemo(memoId, { title, blocks, isPublic, userName });
       alert('メモを更新しました！');
       router.push(`/memos/${memoId}`);
     } catch (error) {
@@ -201,6 +204,30 @@ export default function EditMemoPage() {
               ))}
             </div>
           </div>
+
+          {/* Public Setting (shown on last page) */}
+          {currentIndex === blocks.length - 1 && (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900">{t('memo.isPublic')}</h3>
+                  <p className="text-xs text-gray-500">{t('memo.isPublicDescription')}</p>
+                </div>
+                <button
+                  onClick={() => setIsPublic(!isPublic)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    isPublic ? 'bg-green-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isPublic ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Navigation Buttons */}
           <div className="flex gap-4">

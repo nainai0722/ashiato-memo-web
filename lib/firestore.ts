@@ -40,12 +40,16 @@ function convertTimestamp(data: any): any {
 export async function createMemo(
   userId: string,
   title: string,
-  blocks: MemoBlock[]
+  blocks: MemoBlock[],
+  isPublic: boolean = false,
+  userName?: string
 ): Promise<string> {
   const memoData = {
     userId,
+    userName: userName || null,
     title,
     blocks,
+    isPublic,
     createdAt: Timestamp.now(),
   };
 
@@ -71,6 +75,21 @@ export async function getUserMemos(userId: string): Promise<AshiatoMemo[]> {
   const q = query(
     collection(db, MEMOS_COLLECTION),
     where('userId', '==', userId),
+    orderBy('createdAt', 'desc')
+  );
+
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map((doc) => {
+    const data = convertTimestamp(doc.data());
+    return { id: doc.id, ...data } as AshiatoMemo;
+  });
+}
+
+// Get all public memos
+export async function getPublicMemos(): Promise<AshiatoMemo[]> {
+  const q = query(
+    collection(db, MEMOS_COLLECTION),
+    where('isPublic', '==', true),
     orderBy('createdAt', 'desc')
   );
 

@@ -4,14 +4,19 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { getUserMemos, deleteMemo, searchMemos, filterMemosByTag } from '@/lib/firestore';
+import { getUserMemos, getPublicMemos, deleteMemo, searchMemos, filterMemosByTag } from '@/lib/firestore';
 import { AshiatoMemo, COMMON_TAGS } from '@/types';
 import Link from 'next/link';
+
+type TabType = 'my' | 'public';
 
 export default function MemosPage() {
   const { user, loading, signOut } = useAuth();
   const t = useTranslations();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabType>('my');
+  const [myMemos, setMyMemos] = useState<AshiatoMemo[]>([]);
+  const [publicMemos, setPublicMemos] = useState<AshiatoMemo[]>([]);
   const [memos, setMemos] = useState<AshiatoMemo[]>([]);
   const [filteredMemos, setFilteredMemos] = useState<AshiatoMemo[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -26,16 +31,36 @@ export default function MemosPage() {
 
   useEffect(() => {
     if (user) {
-      loadMemos();
+      loadAllMemos();
     }
   }, [user]);
 
-  const loadMemos = async () => {
+  useEffect(() => {
+    // タブ切り替え時にメモをフィルタリング
+    if (activeTab === 'my') {
+      setMemos(myMemos);
+      setFilteredMemos(myMemos);
+    } else {
+      setMemos(publicMemos);
+      setFilteredMemos(publicMemos);
+    }
+    setSearchKeyword('');
+    setSelectedTag('');
+  }, [activeTab, myMemos, publicMemos]);
+
+  const loadAllMemos = async () => {
     if (!user) return;
 
     try {
       setIsLoading(true);
-      const userMemos = await getUserMemos(user.uid);
+      // 自分のメモと公開メモを並行して取得
+      const [userMemos, allPublicMemos] = await Promise.all([
+        getUserMemos(user.uid),
+        getPublicMemos()
+      ]);
+      setMyMemos(userMemos);
+      setPublicMemos(allPublicMemos);
+      // 初期表示は自分のメモ
       setMemos(userMemos);
       setFilteredMemos(userMemos);
     } catch (error) {
@@ -43,6 +68,10 @@ export default function MemosPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loadMemos = async () => {
+    await loadAllMemos();
   };
 
   const handleSearch = async (keyword: string) => {
@@ -157,6 +186,32 @@ export default function MemosPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Tab Navigation */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('my')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'my'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📝 {t('memo.myMemos')} ({myMemos.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('public')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'public'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              🌐 {t('memo.publicMemos')} ({publicMemos.length})
+            </button>
+          </nav>
+        </div>
+
         {/* Search and Create Button */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
@@ -228,14 +283,26 @@ export default function MemosPage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <Link href={`/memos/${memo.id}`}>
-                      <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 mb-2">
-                        {memo.title}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-gray-500 mb-3">
-                      {formatDate(memo.createdAt)}
-                    </p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Link href={`/memos/${memo.id}`}>
+                        <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600">
+                          {memo.title}
+                        </h3>
+                      </Link>
+                      {memo.isPublic && (
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          🌐 {t('memo.public')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                      <span>{formatDate(memo.createdAt)}</span>
+                      {activeTab === 'public' && memo.userName && (
+                        <span className="text-gray-400">
+                          • {t('memo.by')} {memo.userName}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {memo.blocks
                         .flatMap((block) => block.tags)
@@ -259,20 +326,23 @@ export default function MemosPage() {
                       ...
                     </p>
                   </div>
-                  <div className="ml-4 flex flex-col gap-2">
-                    <Link
-                      href={`/memos/${memo.id}/edit`}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      {t('memo.edit')}
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(memo.id)}
-                      className="text-red-600 hover:text-red-700 text-sm font-medium"
-                    >
-                      {t('memo.delete')}
-                    </button>
-                  </div>
+                  {/* 自分のメモのみ編集・削除を表示 */}
+                  {memo.userId === user?.uid && (
+                    <div className="ml-4 flex flex-col gap-2">
+                      <Link
+                        href={`/memos/${memo.id}/edit`}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        {t('memo.edit')}
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(memo.id)}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                      >
+                        {t('memo.delete')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
