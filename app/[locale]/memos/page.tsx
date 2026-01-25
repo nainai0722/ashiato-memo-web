@@ -47,23 +47,30 @@ export default function MemosPage() {
   const loadAllMemos = async () => {
     if (!user) return;
 
+    setIsLoading(true);
+
+    // 自分のメモを取得（エラーでも空配列）
+    let userMemos: AshiatoMemo[] = [];
     try {
-      setIsLoading(true);
-      // 自分のメモと公開メモを並行して取得
-      const [userMemos, allPublicMemos] = await Promise.all([
-        getUserMemos(user.uid),
-        getPublicMemos()
-      ]);
-      setMyMemos(userMemos);
-      setPublicMemos(allPublicMemos);
-      // 初期表示は自分のメモ
-      setMemos(userMemos);
-      setFilteredMemos(userMemos);
+      userMemos = await getUserMemos(user.uid);
     } catch (error) {
-      console.error('Error loading memos:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading user memos:', error);
     }
+
+    // 公開メモを取得（エラーでも空配列）
+    let allPublicMemos: AshiatoMemo[] = [];
+    try {
+      allPublicMemos = await getPublicMemos();
+    } catch (error) {
+      console.error('Error loading public memos:', error);
+    }
+
+    setMyMemos(userMemos);
+    setPublicMemos(allPublicMemos);
+    // 初期表示は自分のメモ
+    setMemos(userMemos);
+    setFilteredMemos(userMemos);
+    setIsLoading(false);
   };
 
   const loadMemos = async () => {
