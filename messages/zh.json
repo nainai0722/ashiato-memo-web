@@ -121,6 +121,12 @@
     "feature3": "详细模板支持记录",
     "feature4": "分析功能回顾",
     "developedBy": "为育儿父母开发",
-    "confirmSignOut": "确定退出登录？"
+    "confirmSignOut": "确定退出登录？",
+    "editProfile": "编辑个人资料",
+    "displayName": "显示名称",
+    "displayNamePlaceholder": "输入昵称",
+    "bio": "个人简介",
+    "bioPlaceholder": "输入简短的自我介绍（可选）",
+    "tapToChangePhoto": "点击更换头像"
   }
 }

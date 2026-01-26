@@ -121,6 +121,12 @@
     "feature3": "詳細テンプレートで記録をサポート",
     "feature4": "分析機能で振り返り",
     "developedBy": "子育て中の親のために開発されました",
-    "confirmSignOut": "ログアウトしますか？"
+    "confirmSignOut": "ログアウトしますか？",
+    "editProfile": "プロフィールを編集",
+    "displayName": "表示名",
+    "displayNamePlaceholder": "ニックネームを入力",
+    "bio": "自己紹介",
+    "bioPlaceholder": "自己紹介を入力（任意）",
+    "tapToChangePhoto": "タップして写真を変更"
   }
 }

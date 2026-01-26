@@ -14,9 +14,10 @@ import {
   QueryConstraint,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { AshiatoMemo, MemoBlock } from '@/types';
+import { AshiatoMemo, MemoBlock, UserProfile } from '@/types';
 
 const MEMOS_COLLECTION = 'memos';
+const USERS_COLLECTION = 'users';
 
 // Convert Firestore timestamp to Date
 function convertTimestamp(data: any): any {
@@ -212,4 +213,43 @@ export async function getMemoStats(userId: string) {
     topTags,
     monthlyData,
   };
+}
+
+// ==================== User Profile Functions ====================
+
+// Get user profile
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  const docRef = doc(db, USERS_COLLECTION, uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = convertTimestamp(docSnap.data());
+    return { uid: docSnap.id, ...data } as UserProfile;
+  }
+
+  return null;
+}
+
+// Create or update user profile
+export async function saveUserProfile(
+  uid: string,
+  profile: Partial<Omit<UserProfile, 'uid' | 'createdAt'>>
+): Promise<void> {
+  const docRef = doc(db, USERS_COLLECTION, uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    // Update existing profile
+    await updateDoc(docRef, {
+      ...profile,
+      updatedAt: Timestamp.now(),
+    });
+  } else {
+    // Create new profile
+    const { setDoc } = await import('firebase/firestore');
+    await setDoc(docRef, {
+      ...profile,
+      createdAt: Timestamp.now(),
+    });
+  }
 }

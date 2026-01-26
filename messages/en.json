@@ -121,6 +121,12 @@
     "feature3": "Detailed templates to support recording",
     "feature4": "Reflection with analytics",
     "developedBy": "Developed for parents with children",
-    "confirmSignOut": "Sign out?"
+    "confirmSignOut": "Sign out?",
+    "editProfile": "Edit Profile",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Enter your nickname",
+    "bio": "Bio",
+    "bioPlaceholder": "Enter a short bio (optional)",
+    "tapToChangePhoto": "Tap to change photo"
   }
 }

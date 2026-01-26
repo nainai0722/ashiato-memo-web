@@ -1,5 +1,15 @@
 // Data types for AshiatoMemo Web App
 
+// User Profile
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  photoURL?: string;
+  bio?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
 export type MemoBlockType = 'text' | 'image';
 
 export type RecordType = 'building' | 'activity';
