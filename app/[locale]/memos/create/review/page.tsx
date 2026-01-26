@@ -44,8 +44,7 @@ export default function ReviewPage() {
 
     try {
       setIsSaving(true);
-      const userName = isPublic ? (user.displayName || user.email?.split('@')[0] || 'Anonymous') : undefined;
-      await createMemo(user.uid, reviewData.title, reviewData.blocks, isPublic, userName);
+      await createMemo(user.uid, reviewData.title, reviewData.blocks, isPublic);
       sessionStorage.removeItem('reviewData');
       alert('記録を保存しました！');
       router.push('/memos');
@@ -157,7 +156,7 @@ export default function ReviewPage() {
           {isPublic && (
             <div className="mt-3 p-3 bg-green-50 rounded-lg">
               <p className="text-sm text-green-700">
-                🌐 この記録は「みんなの記録」タブで公開されます。投稿者名: {user?.displayName || user?.email?.split('@')[0] || 'Anonymous'}
+                🌐 この記録は「みんなの記録」タブで公開されます。投稿者名は設定のプロフィールで編集できます。
               </p>
             </div>
           )}

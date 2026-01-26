@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { getUserMemos, getPublicMemos, deleteMemo } from '@/lib/firestore';
-import { AshiatoMemo, COMMON_TAGS } from '@/types';
+import { getUserMemos, getPublicMemos, deleteMemo, getUserProfiles } from '@/lib/firestore';
+import { AshiatoMemo, COMMON_TAGS, UserProfile } from '@/types';
 import Link from 'next/link';
 
 type TabType = 'my' | 'public';
@@ -22,6 +22,7 @@ export default function MemosPage() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userProfiles, setUserProfiles] = useState<Map<string, UserProfile>>(new Map());
 
   useEffect(() => {
     if (!loading && !user) {
@@ -61,6 +62,11 @@ export default function MemosPage() {
     let allPublicMemos: AshiatoMemo[] = [];
     try {
       allPublicMemos = await getPublicMemos();
+
+      // 公開メモの投稿者プロフィールを取得
+      const userIds = allPublicMemos.map((memo) => memo.userId);
+      const profiles = await getUserProfiles(userIds);
+      setUserProfiles(profiles);
     } catch (error) {
       console.error('Error loading public memos:', error);
     }
@@ -310,9 +316,9 @@ export default function MemosPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                       <span>{formatDate(memo.createdAt)}</span>
-                      {activeTab === 'public' && memo.userName && (
+                      {activeTab === 'public' && (
                         <span className="text-gray-400">
-                          • {t('memo.by')} {memo.userName}
+                          • {t('memo.by')} {userProfiles.get(memo.userId)?.displayName || 'Unknown'}
                         </span>
                       )}
                     </div>

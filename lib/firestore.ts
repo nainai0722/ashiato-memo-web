@@ -42,12 +42,10 @@ export async function createMemo(
   userId: string,
   title: string,
   blocks: MemoBlock[],
-  isPublic: boolean = false,
-  userName?: string
+  isPublic: boolean = false
 ): Promise<string> {
   const memoData = {
     userId,
-    userName: userName || null,
     title,
     blocks,
     isPublic,
@@ -228,6 +226,25 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   }
 
   return null;
+}
+
+// Get multiple user profiles by IDs (for displaying usernames on public memos)
+export async function getUserProfiles(uids: string[]): Promise<Map<string, UserProfile>> {
+  const profiles = new Map<string, UserProfile>();
+
+  // Remove duplicates
+  const uniqueUids = [...new Set(uids)];
+
+  // Fetch profiles in parallel
+  const promises = uniqueUids.map(async (uid) => {
+    const profile = await getUserProfile(uid);
+    if (profile) {
+      profiles.set(uid, profile);
+    }
+  });
+
+  await Promise.all(promises);
+  return profiles;
 }
 
 // Create or update user profile

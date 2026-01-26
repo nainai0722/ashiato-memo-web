@@ -96,8 +96,7 @@ export default function EditMemoPage() {
 
     try {
       setIsSaving(true);
-      const userName = isPublic ? (user?.displayName || user?.email?.split('@')[0] || 'Anonymous') : undefined;
-      await updateMemo(memoId, { title, blocks, isPublic, userName });
+      await updateMemo(memoId, { title, blocks, isPublic });
       alert('メモを更新しました！');
       router.push(`/memos/${memoId}`);
     } catch (error) {
