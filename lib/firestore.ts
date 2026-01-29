@@ -42,15 +42,19 @@ export async function createMemo(
   userId: string,
   title: string,
   blocks: MemoBlock[],
-  isPublic: boolean = false
+  isPublic: boolean = false,
+  prefecture?: string,
+  district?: string
 ): Promise<string> {
-  const memoData = {
+  const memoData: Record<string, unknown> = {
     userId,
     title,
     blocks,
     isPublic,
     createdAt: Timestamp.now(),
   };
+  if (prefecture) memoData.prefecture = prefecture;
+  if (district) memoData.district = district;
 
   const docRef = await addDoc(collection(db, MEMOS_COLLECTION), memoData);
   return docRef.id;

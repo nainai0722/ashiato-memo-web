@@ -13,7 +13,10 @@ import {
   DEFAULT_ACTIVITY_CATEGORIES,
   CategoryData,
   CATEGORY_HINTS,
+  PREFECTURES,
+  DISTRICTS,
 } from '@/types';
+import { getUserProfile } from '@/lib/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 
@@ -30,6 +33,8 @@ function EditorContent() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [blocks, setBlocks] = useState<MemoBlock[]>([]);
   const [title, setTitle] = useState('');
+  const [prefecture, setPrefecture] = useState('');
+  const [district, setDistrict] = useState('');
 
   useEffect(() => {
     const typeParam = searchParams.get('recordType') as RecordType | null;
@@ -68,6 +73,17 @@ function EditorContent() {
     }));
     setBlocks(initialBlocks);
   }, [searchParams, router]);
+
+  // 前回選択した都道府県をユーザープロファイルから読み込み
+  useEffect(() => {
+    if (user) {
+      getUserProfile(user.uid).then(profile => {
+        if (profile?.lastPrefecture) {
+          setPrefecture(profile.lastPrefecture);
+        }
+      });
+    }
+  }, [user]);
 
   const currentBlock = blocks[currentIndex];
   const currentCategory = currentBlock ? categoryDataMap.get(currentBlock.categoryName) : null;
@@ -128,6 +144,8 @@ function EditorContent() {
       blocks,
       recordType,
       recordMode,
+      prefecture,
+      district,
     };
 
     sessionStorage.setItem('reviewData', JSON.stringify(reviewData));
@@ -175,6 +193,40 @@ function EditorContent() {
               placeholder={t('memo.titlePlaceholder')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
             />
+
+            {/* 都道府県 */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('location.prefecture')}
+              </label>
+              <select
+                value={prefecture}
+                onChange={(e) => setPrefecture(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+              >
+                <option value="">{t('location.prefecturePlaceholder')}</option>
+                {PREFECTURES.map((pref) => (
+                  <option key={pref} value={pref}>{pref}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 地区 */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('location.district')}
+              </label>
+              <select
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+              >
+                <option value="">{t('location.districtPlaceholder')}</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
           </div>
         )}
 

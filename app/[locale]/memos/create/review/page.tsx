@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { createMemo } from '@/lib/firestore';
+import { createMemo, saveUserProfile } from '@/lib/firestore';
 import { MemoBlock } from '@/types';
 import Link from 'next/link';
 
@@ -13,6 +13,8 @@ interface ReviewData {
   blocks: MemoBlock[];
   recordType: string;
   recordMode: string;
+  prefecture?: string;
+  district?: string;
 }
 
 export default function ReviewPage() {
@@ -44,7 +46,18 @@ export default function ReviewPage() {
 
     try {
       setIsSaving(true);
-      await createMemo(user.uid, reviewData.title, reviewData.blocks, isPublic);
+      await createMemo(
+        user.uid,
+        reviewData.title,
+        reviewData.blocks,
+        isPublic,
+        reviewData.prefecture,
+        reviewData.district
+      );
+      // 前回の都道府県をユーザープロファイルに保存
+      if (reviewData.prefecture) {
+        await saveUserProfile(user.uid, { lastPrefecture: reviewData.prefecture });
+      }
       sessionStorage.removeItem('reviewData');
       alert('記録を保存しました！');
       router.push('/memos');
@@ -94,6 +107,11 @@ export default function ReviewPage() {
             {reviewData.recordType === 'building' ? '建物・施設' : '活動'} /{' '}
             {reviewData.recordMode === 'default' ? 'デフォルト記録' : 'カスタム記録'}
           </p>
+          {(reviewData.prefecture || reviewData.district) && (
+            <p className="text-sm text-gray-500 mt-1">
+              {reviewData.prefecture}{reviewData.prefecture && reviewData.district ? ' / ' : ''}{reviewData.district}
+            </p>
+          )}
         </div>
 
         {/* Blocks */}

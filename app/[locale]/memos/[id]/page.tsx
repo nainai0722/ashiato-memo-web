@@ -5,9 +5,11 @@ import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { getMemo, deleteMemo } from '@/lib/firestore';
+import { exportMemoAsCSV, exportMemoAsPDF } from '@/lib/export-utils';
 import { AshiatoMemo } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRef } from 'react';
 
 export default function MemoDetailPage() {
   const { user } = useAuth();
@@ -19,6 +21,7 @@ export default function MemoDetailPage() {
   const [memo, setMemo] = useState<AshiatoMemo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) {
@@ -117,6 +120,22 @@ export default function MemoDetailPage() {
               {t('nav.memos')}
             </Link>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => memo && exportMemoAsCSV(memo)}
+                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+              >
+                {t('export.csv')}
+              </button>
+              <button
+                onClick={() => {
+                  if (memo && contentRef.current) {
+                    exportMemoAsPDF(contentRef.current, memo.title);
+                  }
+                }}
+                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+              >
+                {t('export.pdf')}
+              </button>
               <Link
                 href={`/memos/${memoId}/edit`}
                 className="text-blue-600 hover:text-blue-700 font-medium"
@@ -135,11 +154,16 @@ export default function MemoDetailPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" ref={contentRef}>
         {/* Title Card */}
         <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">{memo.title}</h1>
           <p className="text-gray-500 text-sm">{formatDate(memo.createdAt)}</p>
+          {(memo.prefecture || memo.district) && (
+            <p className="text-gray-500 text-sm mt-1">
+              {memo.prefecture}{memo.prefecture && memo.district ? ' / ' : ''}{memo.district}
+            </p>
+          )}
         </div>
 
         {/* Blocks */}

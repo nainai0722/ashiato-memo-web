@@ -107,6 +107,19 @@
     "loading": "加载中...",
     "error": "发生错误"
   },
+  "location": {
+    "prefecture": "都道府县",
+    "prefecturePlaceholder": "选择都道府县",
+    "district": "地区",
+    "districtPlaceholder": "选择地区",
+    "noPrefecture": "未选择",
+    "noDistrict": "未选择"
+  },
+  "export": {
+    "csv": "CSV",
+    "pdf": "PDF",
+    "exporting": "导出中..."
+  },
   "settings": {
     "title": "设置",
     "account": "账户",

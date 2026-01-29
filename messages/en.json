@@ -107,6 +107,19 @@
     "loading": "Loading...",
     "error": "An error occurred"
   },
+  "location": {
+    "prefecture": "Prefecture",
+    "prefecturePlaceholder": "Select prefecture",
+    "district": "District",
+    "districtPlaceholder": "Select district",
+    "noPrefecture": "Not selected",
+    "noDistrict": "Not selected"
+  },
+  "export": {
+    "csv": "CSV",
+    "pdf": "PDF",
+    "exporting": "Exporting..."
+  },
   "settings": {
     "title": "Settings",
     "account": "Account",

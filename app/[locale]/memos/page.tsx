@@ -316,6 +316,11 @@ export default function MemosPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                       <span>{formatDate(memo.createdAt)}</span>
+                      {(memo.prefecture || memo.district) && (
+                        <span className="text-gray-400">
+                          • {memo.prefecture}{memo.prefecture && memo.district ? ' / ' : ''}{memo.district}
+                        </span>
+                      )}
                       {activeTab === 'public' && (
                         <span className="text-gray-400">
                           • {t('memo.by')} {userProfiles.get(memo.userId)?.displayName || 'Unknown'}

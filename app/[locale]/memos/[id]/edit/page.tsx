@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
-import { getMemo, updateMemo } from '@/lib/firestore';
-import { MemoBlock, COMMON_TAGS } from '@/types';
+import { getMemo, updateMemo, saveUserProfile } from '@/lib/firestore';
+import { MemoBlock, COMMON_TAGS, PREFECTURES, DISTRICTS } from '@/types';
 import Link from 'next/link';
 
 export default function EditMemoPage() {
@@ -21,6 +21,8 @@ export default function EditMemoPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
+  const [prefecture, setPrefecture] = useState('');
+  const [district, setDistrict] = useState('');
 
   useEffect(() => {
     if (!user) {
@@ -43,6 +45,8 @@ export default function EditMemoPage() {
       setTitle(memo.title);
       setBlocks(memo.blocks);
       setIsPublic(memo.isPublic || false);
+      setPrefecture(memo.prefecture || '');
+      setDistrict(memo.district || '');
     } catch (error) {
       console.error('Error loading memo:', error);
       alert(t('common.error'));
@@ -96,7 +100,10 @@ export default function EditMemoPage() {
 
     try {
       setIsSaving(true);
-      await updateMemo(memoId, { title, blocks, isPublic });
+      await updateMemo(memoId, { title, blocks, isPublic, prefecture, district });
+      if (prefecture && user) {
+        await saveUserProfile(user.uid, { lastPrefecture: prefecture });
+      }
       alert('メモを更新しました！');
       router.push(`/memos/${memoId}`);
     } catch (error) {
@@ -157,6 +164,40 @@ export default function EditMemoPage() {
               placeholder={t('memo.titlePlaceholder')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
             />
+
+            {/* 都道府県 */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('location.prefecture')}
+              </label>
+              <select
+                value={prefecture}
+                onChange={(e) => setPrefecture(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+              >
+                <option value="">{t('location.prefecturePlaceholder')}</option>
+                {PREFECTURES.map((pref) => (
+                  <option key={pref} value={pref}>{pref}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 地区 */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('location.district')}
+              </label>
+              <select
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+              >
+                <option value="">{t('location.districtPlaceholder')}</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
           </div>
         )}
 
