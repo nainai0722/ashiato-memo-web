@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { getMemo, updateMemo, saveUserProfile } from '@/lib/firestore';
 import { MemoBlock, COMMON_TAGS, PREFECTURES, DISTRICTS } from '@/types';
 import Link from 'next/link';
+import BlockImageUpload from '@/components/BlockImageUpload';
 
 export default function EditMemoPage() {
   const { user } = useAuth();
@@ -61,6 +62,14 @@ export default function EditMemoPage() {
     setBlocks((prev) =>
       prev.map((block, index) =>
         index === currentIndex ? { ...block, text } : block
+      )
+    );
+  };
+
+  const handleImagesChange = (images: string[]) => {
+    setBlocks((prev) =>
+      prev.map((block, index) =>
+        index === currentIndex ? { ...block, images } : block
       )
     );
   };
@@ -244,6 +253,17 @@ export default function EditMemoPage() {
               ))}
             </div>
           </div>
+
+          {/* Images */}
+          {user && (
+            <div className="mb-6">
+              <BlockImageUpload
+                userId={user.uid}
+                images={currentBlock.images || []}
+                onImagesChange={handleImagesChange}
+              />
+            </div>
+          )}
 
           {/* Public Setting (shown on last page) */}
           {currentIndex === blocks.length - 1 && (

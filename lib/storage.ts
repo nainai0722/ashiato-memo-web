@@ -59,6 +59,62 @@ export async function deleteImage(imageUrl: string): Promise<void> {
 }
 
 /**
+ * Compress image to target size using Canvas API
+ */
+export async function compressImage(
+  file: File,
+  maxSizeBytes: number = 1024 * 1024
+): Promise<File> {
+  if (file.size <= maxSizeBytes) return file;
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { resolve(file); return; }
+
+      // Scale down if needed
+      const maxDim = 2048;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+
+      const tryCompress = (quality: number, scale: number): void => {
+        const w = Math.round(width * scale);
+        const h = Math.round(height * scale);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { resolve(file); return; }
+            if (blob.size <= maxSizeBytes || quality <= 0.1) {
+              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+            } else if (quality > 0.3) {
+              tryCompress(quality - 0.2, scale);
+            } else {
+              tryCompress(quality, scale * 0.8);
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+
+      tryCompress(0.8, 1);
+    };
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/**
  * Validate image file
  * @param file - File to validate
  * @returns Error message if invalid, null if valid

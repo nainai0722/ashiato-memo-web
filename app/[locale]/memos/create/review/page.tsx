@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { createMemo, saveUserProfile } from '@/lib/firestore';
 import { MemoBlock } from '@/types';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ReviewData {
   title: string;
@@ -117,7 +118,7 @@ export default function ReviewPage() {
         {/* Blocks */}
         <div className="space-y-6 mb-8">
           {reviewData.blocks
-            .filter((block) => block.text?.trim())
+            .filter((block) => block.text?.trim() || (block.images && block.images.length > 0))
             .map((block, index) => (
               <div key={block.id} className="bg-white rounded-2xl shadow-xl p-6">
                 <div className="flex items-start justify-between mb-3">
@@ -137,7 +138,16 @@ export default function ReviewPage() {
                     </div>
                   )}
                 </div>
-                <div className="text-gray-700 whitespace-pre-wrap">{block.text}</div>
+                {block.images && block.images.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {block.images.map((url, imgIndex) => (
+                      <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                        <Image src={url} alt={`Image ${imgIndex + 1}`} fill className="object-cover" sizes="64px" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {block.text && <div className="text-gray-700 whitespace-pre-wrap">{block.text}</div>}
               </div>
             ))}
         </div>

@@ -115,6 +115,12 @@
     "noPrefecture": "Not selected",
     "noDistrict": "Not selected"
   },
+  "image": {
+    "upload": "Add image",
+    "uploading": "Uploading...",
+    "maxReached": "Maximum {max} images allowed",
+    "remove": "Remove image"
+  },
   "export": {
     "csv": "CSV",
     "pdf": "PDF",

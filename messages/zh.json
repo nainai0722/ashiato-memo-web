@@ -115,6 +115,12 @@
     "noPrefecture": "未选择",
     "noDistrict": "未选择"
   },
+  "image": {
+    "upload": "添加图片",
+    "uploading": "上传中...",
+    "maxReached": "最多可添加{max}张图片",
+    "remove": "删除图片"
+  },
   "export": {
     "csv": "CSV",
     "pdf": "PDF",

@@ -19,6 +19,7 @@ import {
 import { getUserProfile } from '@/lib/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
+import BlockImageUpload from '@/components/BlockImageUpload';
 
 function EditorContent() {
   const { user } = useAuth();
@@ -107,6 +108,14 @@ function EditorContent() {
                 : [...block.tags, tag],
             }
           : block
+      )
+    );
+  };
+
+  const handleImagesChange = (images: string[]) => {
+    setBlocks((prev) =>
+      prev.map((block, index) =>
+        index === currentIndex ? { ...block, images } : block
       )
     );
   };
@@ -315,6 +324,15 @@ function EditorContent() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Images */}
+          <div className="mb-6">
+            <BlockImageUpload
+              userId={user.uid}
+              images={currentBlock.images || []}
+              onImagesChange={handleImagesChange}
+            />
           </div>
 
           {/* Navigation Buttons */}

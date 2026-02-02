@@ -9,6 +9,7 @@ import { exportMemoAsCSV, exportMemoAsPDF } from '@/lib/export-utils';
 import { AshiatoMemo } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
+import ImageLightbox from '@/components/ImageLightbox';
 import { useRef } from 'react';
 
 export default function MemoDetailPage() {
@@ -21,6 +22,8 @@ export default function MemoDetailPage() {
   const [memo, setMemo] = useState<AshiatoMemo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -169,7 +172,7 @@ export default function MemoDetailPage() {
         {/* Blocks */}
         <div className="space-y-6">
           {memo.blocks
-            .filter((block) => block.text?.trim() || block.imageUrl)
+            .filter((block) => block.text?.trim() || block.imageUrl || (block.images && block.images.length > 0))
             .map((block, index) => (
               <div key={block.id} className="bg-white rounded-2xl shadow-sm p-6 relative group">
                 {/* Copy Button (only for text blocks) */}
@@ -229,6 +232,30 @@ export default function MemoDetailPage() {
                   </div>
                 )}
 
+                {/* Multiple Images */}
+                {block.images && block.images.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    {block.images.map((url, imgIndex) => (
+                      <button
+                        key={url}
+                        onClick={() => {
+                          setLightboxImages(block.images!);
+                          setLightboxIndex(imgIndex);
+                        }}
+                        className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 hover:opacity-80 transition-opacity"
+                      >
+                        <Image
+                          src={url}
+                          alt={`${block.categoryName} ${imgIndex + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="96px"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {/* Text Content */}
                 {block.text && (
                   <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
@@ -264,6 +291,15 @@ export default function MemoDetailPage() {
           <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg animate-fade-in">
             コピーしました
           </div>
+        )}
+
+        {/* Image Lightbox */}
+        {lightboxIndex !== null && lightboxImages.length > 0 && (
+          <ImageLightbox
+            images={lightboxImages}
+            initialIndex={lightboxIndex}
+            onClose={() => { setLightboxIndex(null); setLightboxImages([]); }}
+          />
         )}
       </main>
     </div>

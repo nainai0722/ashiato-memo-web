@@ -23,6 +23,7 @@ export interface MemoBlock {
   text?: string;
   imageUrl?: string;
   caption?: string;
+  images?: string[];  // 複数画像URL（最大5枚/ブロック）
   categoryName: string;
   tags: string[];
   order: number;
