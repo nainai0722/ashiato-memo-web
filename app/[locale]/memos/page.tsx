@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { getUserMemos, getPublicMemos, deleteMemo, getUserProfiles } from '@/lib/firestore';
-import { AshiatoMemo, COMMON_TAGS, UserProfile } from '@/types';
+import { AshiatoMemo, COMMON_TAGS, UserProfile, PREFECTURES } from '@/types';
 import Link from 'next/link';
 
 type TabType = 'my' | 'public';
@@ -21,6 +21,8 @@ export default function MemosPage() {
   const [filteredMemos, setFilteredMemos] = useState<AshiatoMemo[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedPrefecture, setSelectedPrefecture] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userProfiles, setUserProfiles] = useState<Map<string, UserProfile>>(new Map());
 
@@ -43,6 +45,8 @@ export default function MemosPage() {
     setFilteredMemos(currentMemos);
     setSearchKeyword('');
     setSelectedTags([]);
+    setSelectedPrefecture('');
+    setSelectedMonth(null);
   }, [activeTab, myMemos, publicMemos]);
 
   const loadAllMemos = async () => {
@@ -84,7 +88,13 @@ export default function MemosPage() {
   };
 
   // フィルタリングをクライアントサイドで実行
-  const applyFilters = (baseMemos: AshiatoMemo[], keyword: string, tags: string[]) => {
+  const applyFilters = (
+    baseMemos: AshiatoMemo[],
+    keyword: string,
+    tags: string[],
+    prefecture: string,
+    month: number | null
+  ) => {
     let result = baseMemos;
 
     // キーワード検索
@@ -109,12 +119,25 @@ export default function MemosPage() {
       });
     }
 
+    // 都道府県フィルタリング
+    if (prefecture) {
+      result = result.filter((memo) => memo.prefecture === prefecture);
+    }
+
+    // 月フィルタリング
+    if (month !== null) {
+      result = result.filter((memo) => {
+        const memoMonth = memo.createdAt.getMonth() + 1; // getMonth() is 0-indexed
+        return memoMonth === month;
+      });
+    }
+
     return result;
   };
 
   const handleSearch = (keyword: string) => {
     setSearchKeyword(keyword);
-    const filtered = applyFilters(memos, keyword, selectedTags);
+    const filtered = applyFilters(memos, keyword, selectedTags, selectedPrefecture, selectedMonth);
     setFilteredMemos(filtered);
   };
 
@@ -128,7 +151,19 @@ export default function MemosPage() {
       newTags = [...selectedTags, tag];
     }
     setSelectedTags(newTags);
-    const filtered = applyFilters(memos, searchKeyword, newTags);
+    const filtered = applyFilters(memos, searchKeyword, newTags, selectedPrefecture, selectedMonth);
+    setFilteredMemos(filtered);
+  };
+
+  const handlePrefectureFilter = (prefecture: string) => {
+    setSelectedPrefecture(prefecture);
+    const filtered = applyFilters(memos, searchKeyword, selectedTags, prefecture, selectedMonth);
+    setFilteredMemos(filtered);
+  };
+
+  const handleMonthFilter = (month: number | null) => {
+    setSelectedMonth(month);
+    const filtered = applyFilters(memos, searchKeyword, selectedTags, selectedPrefecture, month);
     setFilteredMemos(filtered);
   };
 
@@ -250,23 +285,59 @@ export default function MemosPage() {
           </Link>
         </div>
 
-        {/* Tag Filter */}
-        <div className="mb-6">
-          <p className="text-sm text-gray-600 mb-2">{t('memo.filterByTag')}</p>
-          <div className="flex flex-wrap gap-2">
-            {COMMON_TAGS.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => handleTagFilter(tag)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  selectedTags.includes(tag)
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+        {/* Filters */}
+        <div className="mb-6 space-y-4">
+          {/* Tag Filter */}
+          <div>
+            <p className="text-sm text-gray-600 mb-2">{t('memo.filterByTag')}</p>
+            <div className="flex flex-wrap gap-2">
+              {COMMON_TAGS.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagFilter(tag)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    selectedTags.includes(tag)
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prefecture and Month Filters */}
+          <div className="flex flex-wrap gap-4">
+            {/* Prefecture Filter */}
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-sm text-gray-600 mb-2">{t('memo.filterByPrefecture')}</p>
+              <select
+                value={selectedPrefecture}
+                onChange={(e) => handlePrefectureFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               >
-                {tag}
-              </button>
-            ))}
+                <option value="">{t('memo.allPrefectures')}</option>
+                {PREFECTURES.map((pref) => (
+                  <option key={pref} value={pref}>{pref}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Month Filter */}
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-sm text-gray-600 mb-2">{t('memo.filterByMonth')}</p>
+              <select
+                value={selectedMonth ?? ''}
+                onChange={(e) => handleMonthFilter(e.target.value ? Number(e.target.value) : null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              >
+                <option value="">{t('memo.allMonths')}</option>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
+                  <option key={month} value={month}>{month}{t('memo.month')}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

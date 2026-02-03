@@ -124,7 +124,8 @@ export const CATEGORY_HINTS: Record<string, HintTemplate[]> = {
   '施設の概要': [
     { name: '施設情報', template: '施設名：\n営業時間：\n所在地：\nWebサイト：' },
     { name: '駐車場情報', template: '場所：\n台数：\n距離：\n料金：' },
-    { name: '料金', template: '大人：\n子ども：\n割引：' }
+    { name: '料金', template: '大人：\n子ども：\n割引：' },
+    { name: '団体受付', template: '団体受付可否：\n受付窓口：\n特典：\n注意事項：\n今回の手続きした指導者：' }
   ],
   '反省点': [
     { name: '計画面', template: '失敗した点：\n気づいた点：' },
