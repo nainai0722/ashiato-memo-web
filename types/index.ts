@@ -7,6 +7,7 @@ export interface UserProfile {
   photoURL?: string;
   bio?: string;
   lastPrefecture?: string;  // 前回選択した都道府県
+  lastDistrict?: string;    // 前回選択した地区
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -227,10 +228,16 @@ export const PREFECTURES = [
 
 export type Prefecture = typeof PREFECTURES[number];
 
-// 地区（随時追加可能）
-export const DISTRICTS = [
-  '阪神北地区',
-  'その他',
-] as const;
+// 都道府県ごとの地区マップ（随時追加可能）
+export const PREFECTURE_DISTRICTS: Record<string, readonly string[]> = {
+  '兵庫県': ['阪神北地区', 'その他'],
+};
 
+// 後方互換のため残す
+export const DISTRICTS = ['阪神北地区', 'その他'] as const;
 export type District = typeof DISTRICTS[number];
+
+// 指定都道府県の地区リストを返す。未定義なら空配列
+export function getDistrictsForPrefecture(prefecture: string): readonly string[] {
+  return PREFECTURE_DISTRICTS[prefecture] || [];
+}

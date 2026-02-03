@@ -14,7 +14,7 @@ import {
   CategoryData,
   CATEGORY_HINTS,
   PREFECTURES,
-  DISTRICTS,
+  getDistrictsForPrefecture,
 } from '@/types';
 import { getUserProfile } from '@/lib/firestore';
 import { v4 as uuidv4 } from 'uuid';
@@ -75,16 +75,34 @@ function EditorContent() {
     setBlocks(initialBlocks);
   }, [searchParams, router]);
 
-  // 前回選択した都道府県をユーザープロファイルから読み込み
+  // 前回選択した都道府県・地区をユーザープロファイルから読み込み
   useEffect(() => {
     if (user) {
       getUserProfile(user.uid).then(profile => {
         if (profile?.lastPrefecture) {
           setPrefecture(profile.lastPrefecture);
+          const districts = getDistrictsForPrefecture(profile.lastPrefecture);
+          if (districts.length > 0 && profile?.lastDistrict) {
+            setDistrict(profile.lastDistrict);
+          } else {
+            setDistrict('未指定');
+          }
         }
       });
     }
   }, [user]);
+
+  const availableDistricts = getDistrictsForPrefecture(prefecture);
+
+  const handlePrefectureChange = (newPrefecture: string) => {
+    setPrefecture(newPrefecture);
+    const districts = getDistrictsForPrefecture(newPrefecture);
+    if (districts.length === 0) {
+      setDistrict('未指定');
+    } else {
+      setDistrict('');
+    }
+  };
 
   const currentBlock = blocks[currentIndex];
   const currentCategory = currentBlock ? categoryDataMap.get(currentBlock.categoryName) : null;
@@ -210,7 +228,7 @@ function EditorContent() {
               </label>
               <select
                 value={prefecture}
-                onChange={(e) => setPrefecture(e.target.value)}
+                onChange={(e) => handlePrefectureChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               >
                 <option value="">{t('location.prefecturePlaceholder')}</option>
@@ -225,16 +243,22 @@ function EditorContent() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('location.district')}
               </label>
-              <select
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-              >
-                <option value="">{t('location.districtPlaceholder')}</option>
-                {DISTRICTS.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
+              {availableDistricts.length > 0 ? (
+                <select
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                >
+                  <option value="">{t('location.districtPlaceholder')}</option>
+                  {availableDistricts.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="px-4 py-3 text-gray-500 bg-gray-100 rounded-lg">
+                  {prefecture ? t('location.noDistrict') : t('location.noPrefecture')}
+                </p>
+              )}
             </div>
           </div>
         )}

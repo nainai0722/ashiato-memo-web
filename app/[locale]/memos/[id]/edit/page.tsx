@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { getMemo, updateMemo, saveUserProfile } from '@/lib/firestore';
-import { MemoBlock, COMMON_TAGS, PREFECTURES, DISTRICTS } from '@/types';
+import { MemoBlock, COMMON_TAGS, PREFECTURES, getDistrictsForPrefecture } from '@/types';
 import Link from 'next/link';
 import BlockImageUpload from '@/components/BlockImageUpload';
 
@@ -53,6 +53,18 @@ export default function EditMemoPage() {
       alert(t('common.error'));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const availableDistricts = getDistrictsForPrefecture(prefecture);
+
+  const handlePrefectureChange = (newPrefecture: string) => {
+    setPrefecture(newPrefecture);
+    const districts = getDistrictsForPrefecture(newPrefecture);
+    if (districts.length === 0) {
+      setDistrict('未指定');
+    } else {
+      setDistrict('');
     }
   };
 
@@ -111,7 +123,7 @@ export default function EditMemoPage() {
       setIsSaving(true);
       await updateMemo(memoId, { title, blocks, isPublic, prefecture, district });
       if (prefecture && user) {
-        await saveUserProfile(user.uid, { lastPrefecture: prefecture });
+        await saveUserProfile(user.uid, { lastPrefecture: prefecture, lastDistrict: district });
       }
       alert('メモを更新しました！');
       router.push(`/memos/${memoId}`);
@@ -181,7 +193,7 @@ export default function EditMemoPage() {
               </label>
               <select
                 value={prefecture}
-                onChange={(e) => setPrefecture(e.target.value)}
+                onChange={(e) => handlePrefectureChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               >
                 <option value="">{t('location.prefecturePlaceholder')}</option>
@@ -196,16 +208,22 @@ export default function EditMemoPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('location.district')}
               </label>
-              <select
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-              >
-                <option value="">{t('location.districtPlaceholder')}</option>
-                {DISTRICTS.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
+              {availableDistricts.length > 0 ? (
+                <select
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                >
+                  <option value="">{t('location.districtPlaceholder')}</option>
+                  {availableDistricts.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="px-4 py-3 text-gray-500 bg-gray-100 rounded-lg">
+                  {prefecture ? t('location.noDistrict') : t('location.noPrefecture')}
+                </p>
+              )}
             </div>
           </div>
         )}

@@ -55,9 +55,12 @@ export default function ReviewPage() {
         reviewData.prefecture,
         reviewData.district
       );
-      // 前回の都道府県をユーザープロファイルに保存
+      // 前回の都道府県・地区をユーザープロファイルに保存
       if (reviewData.prefecture) {
-        await saveUserProfile(user.uid, { lastPrefecture: reviewData.prefecture });
+        await saveUserProfile(user.uid, {
+          lastPrefecture: reviewData.prefecture,
+          lastDistrict: reviewData.district || '未指定',
+        });
       }
       sessionStorage.removeItem('reviewData');
       alert('記録を保存しました！');
