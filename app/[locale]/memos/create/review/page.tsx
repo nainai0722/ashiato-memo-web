@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createMemo, saveUserProfile } from '@/lib/firestore';
-import { MemoBlock } from '@/types';
+import { MemoBlock, FACILITY_CATEGORIES, ACTIVITY_CATEGORIES } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -16,6 +16,8 @@ interface ReviewData {
   recordMode: string;
   prefecture?: string;
   district?: string;
+  facilityCategory?: string;
+  activityCategory?: string;
 }
 
 export default function ReviewPage() {
@@ -53,7 +55,9 @@ export default function ReviewPage() {
         reviewData.blocks,
         isPublic,
         reviewData.prefecture,
-        reviewData.district
+        reviewData.district,
+        reviewData.facilityCategory,
+        reviewData.activityCategory
       );
       // 前回の都道府県・地区をユーザープロファイルに保存
       if (reviewData.prefecture) {
@@ -114,6 +118,22 @@ export default function ReviewPage() {
           {(reviewData.prefecture || reviewData.district) && (
             <p className="text-sm text-gray-500 mt-1">
               {reviewData.prefecture}{reviewData.prefecture && reviewData.district ? ' / ' : ''}{reviewData.district}
+            </p>
+          )}
+          {reviewData.facilityCategory && (
+            <p className="text-sm text-gray-500 mt-1">
+              {(() => {
+                const cat = FACILITY_CATEGORIES.find(c => c.id === reviewData.facilityCategory);
+                return cat ? `${cat.icon} ${cat.name}` : reviewData.facilityCategory;
+              })()}
+            </p>
+          )}
+          {reviewData.activityCategory && (
+            <p className="text-sm text-gray-500 mt-1">
+              {(() => {
+                const cat = ACTIVITY_CATEGORIES.find(c => c.id === reviewData.activityCategory);
+                return cat ? `${cat.icon} ${cat.name}` : reviewData.activityCategory;
+              })()}
             </p>
           )}
         </div>

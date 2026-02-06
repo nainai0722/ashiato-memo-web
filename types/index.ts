@@ -39,6 +39,8 @@ export interface AshiatoMemo {
   isPublic?: boolean;  // 公開設定（true: 公開, false/undefined: 非公開）
   prefecture?: string;  // 都道府県
   district?: string;    // 地区
+  facilityCategory?: string;  // 施設カテゴリ（建物・施設タイプの場合）
+  activityCategory?: string;  // 活動カテゴリ（活動タイプの場合）
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -242,3 +244,37 @@ export type District = typeof DISTRICTS[number];
 export function getDistrictsForPrefecture(prefecture: string): readonly string[] {
   return PREFECTURE_DISTRICTS[prefecture] || [];
 }
+
+// 施設カテゴリ（建物・施設タイプ用）
+export const FACILITY_CATEGORIES = [
+  { id: 'park', name: '公園', icon: '🌳' },
+  { id: 'community_center', name: '公民館', icon: '🏛️' },
+  { id: 'public_facility', name: 'その他公共施設', icon: '🏢' },
+  { id: 'museum', name: '社会見学施設（博物館など）', icon: '🖼️' },
+  { id: 'lodge', name: '舎営施設', icon: '🏠' },
+  { id: 'gym', name: '体育館・運動場', icon: '🏟️' },
+  { id: 'campsite', name: 'キャンプ場', icon: '⛺' },
+  { id: 'pool', name: 'プール・海水浴場', icon: '🏊' },
+  { id: 'other', name: 'その他', icon: '📍' },
+] as const;
+
+export type FacilityCategory = typeof FACILITY_CATEGORIES[number]['id'];
+
+// 活動カテゴリ（活動タイプ用）
+export const ACTIVITY_CATEGORIES = [
+  { id: 'hiking', name: 'ハイキング', icon: '🥾' },
+  { id: 'seasonal', name: '季節の催し', icon: '🎋' },
+  { id: 'craft', name: '工作', icon: '✂️' },
+  { id: 'nature', name: '自然体験', icon: '🌿' },
+  { id: 'lodge_stay', name: '舎営', icon: '🏠' },
+  { id: 'camp', name: 'キャンプ', icon: '⛺' },
+  { id: 'snow', name: '雪遊び', icon: '⛄' },
+  { id: 'river', name: '川遊び', icon: '🏞️' },
+  { id: 'cooking', name: '料理・野外炊事', icon: '🍳' },
+  { id: 'meeting', name: '集会・セレモニー', icon: '🤝' },
+  { id: 'service', name: '奉仕活動', icon: '🙌' },
+  { id: 'sports', name: 'スポーツ・ゲーム', icon: '⚽' },
+  { id: 'other', name: 'その他', icon: '📝' },
+] as const;
+
+export type ActivityCategory = typeof ACTIVITY_CATEGORIES[number]['id'];

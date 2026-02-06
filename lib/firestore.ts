@@ -44,7 +44,9 @@ export async function createMemo(
   blocks: MemoBlock[],
   isPublic: boolean = false,
   prefecture?: string,
-  district?: string
+  district?: string,
+  facilityCategory?: string,
+  activityCategory?: string
 ): Promise<string> {
   const memoData: Record<string, unknown> = {
     userId,
@@ -55,6 +57,8 @@ export async function createMemo(
   };
   if (prefecture) memoData.prefecture = prefecture;
   if (district) memoData.district = district;
+  if (facilityCategory) memoData.facilityCategory = facilityCategory;
+  if (activityCategory) memoData.activityCategory = activityCategory;
 
   const docRef = await addDoc(collection(db, MEMOS_COLLECTION), memoData);
   return docRef.id;

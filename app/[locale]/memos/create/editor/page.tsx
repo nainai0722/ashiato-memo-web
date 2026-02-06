@@ -15,6 +15,8 @@ import {
   CATEGORY_HINTS,
   PREFECTURES,
   getDistrictsForPrefecture,
+  FACILITY_CATEGORIES,
+  ACTIVITY_CATEGORIES,
 } from '@/types';
 import { getUserProfile } from '@/lib/firestore';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,6 +38,8 @@ function EditorContent() {
   const [title, setTitle] = useState('');
   const [prefecture, setPrefecture] = useState('');
   const [district, setDistrict] = useState('');
+  const [facilityCategory, setFacilityCategory] = useState('');
+  const [activityCategory, setActivityCategory] = useState('');
 
   useEffect(() => {
     const typeParam = searchParams.get('recordType') as RecordType | null;
@@ -173,6 +177,8 @@ function EditorContent() {
       recordMode,
       prefecture,
       district,
+      facilityCategory: recordType === 'building' ? facilityCategory : undefined,
+      activityCategory: recordType === 'activity' ? activityCategory : undefined,
     };
 
     sessionStorage.setItem('reviewData', JSON.stringify(reviewData));
@@ -260,6 +266,58 @@ function EditorContent() {
                 </p>
               )}
             </div>
+
+            {/* 施設カテゴリ（建物・施設タイプの場合） */}
+            {recordType === 'building' && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  施設カテゴリ
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {FACILITY_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setFacilityCategory(cat.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        facilityCategory === cat.id
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span>{cat.icon}</span>
+                      <span className="truncate">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 活動カテゴリ（活動タイプの場合） */}
+            {recordType === 'activity' && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  活動カテゴリ
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {ACTIVITY_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setActivityCategory(cat.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        activityCategory === cat.id
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span>{cat.icon}</span>
+                      <span className="truncate">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

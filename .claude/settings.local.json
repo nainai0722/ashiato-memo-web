@@ -21,7 +21,21 @@
       "Bash(npm init:*)",
       "Bash(npm install:*)",
       "Bash(npx playwright install:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npx next build)",
+      "Bash(npx eslint:*)",
+      "Bash(git status:*)",
+      "Bash(ssh:*)",
+      "Bash(gh auth:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(gh ssh-key list:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:iko-yo.net)",
+      "Bash(npx create-next-app@latest minna-de-ikoyo --typescript --tailwind --eslint --app --src-dir=false --import-alias=\"@/*\" --turbopack --yes)",
+      "Bash(git init:*)",
+      "Bash(curl:*)",
+      "Bash(gh repo create:*)"
     ]
   }
 }
