@@ -22,6 +22,7 @@ import { getUserProfile } from '@/lib/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 import BlockImageUpload from '@/components/BlockImageUpload';
+import TitleAutocomplete from '@/components/TitleAutocomplete';
 
 function EditorContent() {
   const { user } = useAuth();
@@ -219,10 +220,10 @@ function EditorContent() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t('memo.title')}
             </label>
-            <input
-              type="text"
+            <TitleAutocomplete
+              userId={user.uid}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={setTitle}
               placeholder={t('memo.titlePlaceholder')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
             />

@@ -7,6 +7,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -18,6 +19,7 @@ import { AshiatoMemo, MemoBlock, UserProfile } from '@/types';
 
 const MEMOS_COLLECTION = 'memos';
 const USERS_COLLECTION = 'users';
+const TITLES_COLLECTION = 'titles';
 
 // Convert Firestore timestamp to Date
 function convertTimestamp(data: any): any {
@@ -61,6 +63,10 @@ export async function createMemo(
   if (activityCategory) memoData.activityCategory = activityCategory;
 
   const docRef = await addDoc(collection(db, MEMOS_COLLECTION), memoData);
+
+  // タイトルをtitlesコレクションに保存（重複しないよう更新）
+  await saveTitle(userId, title);
+
   return docRef.id;
 }
 
@@ -254,6 +260,74 @@ export async function getUserProfiles(uids: string[]): Promise<Map<string, UserP
   await Promise.all(promises);
   return profiles;
 }
+
+// ==================== Title Functions ====================
+
+export interface TitleEntry {
+  id: string;
+  title: string;
+  userId: string;
+  usageCount: number;
+  lastUsedAt: Date;
+  createdAt: Date;
+}
+
+// タイトルを保存または更新
+export async function saveTitle(userId: string, title: string): Promise<void> {
+  if (!title.trim()) return;
+
+  // タイトルをキーとして使用（ユーザーIDと組み合わせて一意にする）
+  const titleKey = `${userId}_${title}`;
+  const docRef = doc(db, TITLES_COLLECTION, titleKey);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    // 既存のタイトルの使用回数を更新
+    const data = docSnap.data();
+    await updateDoc(docRef, {
+      usageCount: (data.usageCount || 1) + 1,
+      lastUsedAt: Timestamp.now(),
+    });
+  } else {
+    // 新しいタイトルを作成
+    await setDoc(docRef, {
+      title: title.trim(),
+      userId,
+      usageCount: 1,
+      lastUsedAt: Timestamp.now(),
+      createdAt: Timestamp.now(),
+    });
+  }
+}
+
+// ユーザーのタイトル候補を取得
+export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
+  const q = query(
+    collection(db, TITLES_COLLECTION),
+    where('userId', '==', userId),
+    orderBy('lastUsedAt', 'desc')
+  );
+
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map((doc) => {
+    const data = convertTimestamp(doc.data());
+    return { id: doc.id, ...data } as TitleEntry;
+  });
+}
+
+// タイトル候補を検索（部分一致）
+export async function searchTitles(userId: string, keyword: string): Promise<TitleEntry[]> {
+  if (!keyword.trim()) return [];
+
+  const allTitles = await getUserTitles(userId);
+  const lowerKeyword = keyword.toLowerCase();
+
+  return allTitles
+    .filter((entry) => entry.title.toLowerCase().includes(lowerKeyword))
+    .slice(0, 10); // 最大10件
+}
+
+// ==================== User Profile Functions ====================
 
 // Create or update user profile
 export async function saveUserProfile(
